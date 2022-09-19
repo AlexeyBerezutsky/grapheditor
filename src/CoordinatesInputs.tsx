@@ -11,9 +11,8 @@ export const CoordinatesInputs = ({ coordinates, onEdit, onRemove }: Props) => {
     return <>
         {
             coordinates.map((tuple, ix) => {
-                const key = JSON.stringify(tuple);
                 return (
-                    <div key={key} className="input-group">
+                    <div key={ix} className="input-group">
                         <LabeledInput
                             name='x'
                             value={tuple.x}

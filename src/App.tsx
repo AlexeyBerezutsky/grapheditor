@@ -10,7 +10,7 @@ export type Coordinates = {
     y: number;
 };
 
-const plotSize = 100;
+export const plotSize = 100;
 
 export default function App() {
     const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
@@ -34,7 +34,6 @@ export default function App() {
         updater();
         return () => window.removeEventListener('resize', updater);
     }, [ref?.current]);
-
 
     const handleCoordinateUpdate = (ix: number, entry: Coordinates) => {
         if (!isExist(coordinates, entry)) {

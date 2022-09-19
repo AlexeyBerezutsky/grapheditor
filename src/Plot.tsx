@@ -3,7 +3,7 @@ import { MouseEvent } from 'react';
 
 type Props = {
     onClick: (coordinates: Coordinates) => void,
-    coordinates: Coordinates[]
+    coordinates: Coordinates[];
 };
 
 export const Plot = ({
@@ -23,13 +23,12 @@ export const Plot = ({
 
     return (
         <div onClick={onplotAreacClick} className="plot">
-            {coordinates.map((tuple) => {
-                const key = JSON.stringify(tuple);
+            {coordinates.map((tuple, ix) => {
                 return (
                     <div
                         onClick={(event) => { event.stopPropagation() }}
                         className="point"
-                        key={key}
+                        key={ix}
                         style={{
                             left: tuple.x,
                             bottom: tuple.y,
