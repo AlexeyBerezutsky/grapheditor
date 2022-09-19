@@ -1,16 +1,16 @@
-import { useState, MouseEvent, useRef, useEffect, MutableRefObject } from "react";
 import './App.css'
+
+import { useState, MouseEvent, useRef, useEffect, MutableRefObject } from "react";
+import { CoordinatesInputs } from "./CoordinatesInputs";
 import { Plot } from "./Plot";
+import { convert, isExist } from './tools';
 
 export type Coordinates = {
-    x?: number;
-    y?: number;
+    x: number;
+    y: number;
 };
 
 const plotSize = 100;
-
-
-const convert = (coordinates: Coordinates[], aspect: number): Coordinates[] => coordinates.map((tuple: Coordinates) => ({ x: (tuple.x && tuple.x * aspect), y: (tuple.y && tuple.y * aspect) }))
 
 export default function App() {
     const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
@@ -35,67 +35,39 @@ export default function App() {
         return () => window.removeEventListener('resize', updater);
     }, [ref?.current]);
 
-    const handleRemove = (ix: number) => () => {
+
+    const handleCoordinateUpdate = (ix: number, entry: Coordinates) => {
+        if (!isExist(coordinates, entry)) {
+            const newcoordinates = [...coordinates];
+            newcoordinates[ix] = entry;
+            setCoordinates(newcoordinates);
+        }
+    };
+
+    const AddCoordinates = ({ x, y }: Coordinates) => {
+        const newCoordinates = { x: x / aspect, y: y / aspect };
+
+        if (!isExist(coordinates, newCoordinates)) {
+            setCoordinates([...coordinates, newCoordinates]);
+        }
+    };
+
+    const handleRemove = (ix: number) => {
         coordinates.splice(ix, 1);
         setCoordinates([...coordinates]);
     };
 
-    const handleAddPoint = () => {
-        setCoordinates([...coordinates, {}]);
-    };
-
-    const handleCoordinateUpdate = (ix: number, entry: Coordinates) => {
-        const newcoordinates = [...coordinates];
-        newcoordinates[ix] = entry;
-        setCoordinates(newcoordinates);
-    };
-
-    const handlePlotClick = (event: MouseEvent) => {
-        const node = event.target as HTMLElement
-
-        const bounds = node.getBoundingClientRect();
-        const x = event.clientX - bounds.left;
-        const y = bounds.bottom - event.clientY;
-
-        const newCoordinates = { x: x / aspect, y: y / aspect };
-
-        setCoordinates([...coordinates, newCoordinates]);
-    }
-
     return (
         <div className="main">
             <div className="column">
-                {coordinates.map((row, ix) => {
-                    const key= JSON.stringify(row);
-                    return (
-                        <div key={key}>
-                            <input
-                                value={row.x || ''}
-                                onChange={(event) => {
-                                    handleCoordinateUpdate(ix, {
-                                        ...row,
-                                        x: +event.target.value
-                                    });
-                                }}
-                            />
-                            <input
-                                value={row.y || ''}
-                                onChange={(event) => {
-                                    handleCoordinateUpdate(ix, {
-                                        ...row,
-                                        y: +event.target.value
-                                    });
-                                }}
-                            />
-                            <button onClick={handleRemove(ix)}>Remove</button>
-                        </div>
-                    );
-                })}
-
-                <button onClick={handleAddPoint}>Add point</button>
+                <CoordinatesInputs
+                    coordinates={coordinates}
+                    onEdit={handleCoordinateUpdate}
+                    onRemove={handleRemove} />
+                <button className="addButton" onClick={() => AddCoordinates({ x: 0, y: 0 })}>Add point</button>
             </div>
             <div className="column" ref={ref}>
-                <Plot coordinates={convert(coordinates, aspect)} onClick={handlePlotClick} />
+                <Plot coordinates={convert(coordinates, aspect)} onClick={AddCoordinates} />
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 .main {
     display: flex;
+    margin: 20px;
 }
 
 .column {
@@ -20,3 +21,28 @@
     background-color: red;
     border-radius: 5px;
 }
+
+.input-group {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.input-group {
+    margin-bottom: 10px;
+}
+
+.input-group .coordinate {
+    margin-right: 4px;
+}
+
+.coordinate label {
+    margin-right: 1px;
+    text-transform: uppercase;
+}
+
+.addButton {
+    align-self: end;
+}
+
+

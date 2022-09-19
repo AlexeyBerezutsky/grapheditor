@@ -1,31 +1,42 @@
-import {MouseEventHandler} from 'react';
 import { Coordinates } from './App';
+import { MouseEvent } from 'react';
 
 type Props = {
-    onClick: MouseEventHandler<HTMLDivElement>,
+    onClick: (coordinates: Coordinates) => void,
     coordinates: Coordinates[]
 };
 
 export const Plot = ({
     onClick,
     coordinates
-}: Props )=>{
+}: Props) => {
+
+    const onplotAreacClick = (event: MouseEvent) => {
+        const node = event.target as HTMLElement
+
+        const bounds = node.getBoundingClientRect();
+        const x = event.clientX - bounds.left;
+        const y = bounds.bottom - event.clientY;
+
+        onClick({ x, y });
+    }
+
     return (
-        <div onClick={onClick} className="plot">
-        {coordinates.map((tuple) => {
-            const key = JSON.stringify(tuple);
-            return (
-                <div
-                    onClick= {(event)=>{ event.stopPropagation()}}
-                    className="point"
-                    key={key}
-                    style={{
-                        left: tuple.x,
-                        bottom: tuple.y,
-                    }}
-                />
-            );
-        })}
-    </div>
+        <div onClick={onplotAreacClick} className="plot">
+            {coordinates.map((tuple) => {
+                const key = JSON.stringify(tuple);
+                return (
+                    <div
+                        onClick={(event) => { event.stopPropagation() }}
+                        className="point"
+                        key={key}
+                        style={{
+                            left: tuple.x,
+                            bottom: tuple.y,
+                        }}
+                    />
+                );
+            })}
+        </div>
     )
 }
