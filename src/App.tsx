@@ -1,6 +1,6 @@
 import './App.css'
 
-import { useState, MouseEvent, useRef, useEffect, MutableRefObject } from "react";
+import { useState, useRef, useEffect, MutableRefObject } from "react";
 import { CoordinatesInputs } from "./CoordinatesInputs";
 import { Plot } from "./Plot";
 import { convert, isExist } from './tools';
