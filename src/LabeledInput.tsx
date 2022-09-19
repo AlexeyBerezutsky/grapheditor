@@ -9,7 +9,7 @@ export const LabeledInput = ({ value, name, onInput }: Props) => {
     <div className="coordinate">
         <label>{name}</label>
         <input
-            value={value || ''}
+            value={value}
             onChange={(event) => { onInput(+event.target.value) }}
         />
     </div>)
