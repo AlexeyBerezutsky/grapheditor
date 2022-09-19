@@ -1,9 +1,27 @@
 import { useState, MouseEvent } from "react";
+import './App.css'
 
 type Coordinates = {
     x?: number;
     y?: number;
 };
+
+// const toView = (coordinates: Coordinates, aspect: number): Coordinates=>{
+//     return {
+//         x: (coordinates.x || 0) * aspect,
+//         y: (coordinates.y || 0) * aspect
+//     }
+// }
+
+// const toCoordinates = (coordinates: Coordinates, aspect: number): Coordinates=>{
+//     return {
+//         x: (coordinates.x || 0) / aspect,
+//         y: (coordinates.y || 0) / aspect
+//     }
+// }
+
+
+// const aspect = 100;
 
 export default function App() {
     const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
@@ -29,15 +47,16 @@ export default function App() {
 
         const bounds = node.getBoundingClientRect();
         const x = event.clientX - bounds.left;
-        const y = event.clientY - bounds.top
+        const y =  bounds.bottom - event.clientY;
 
-        handleAddPoint({ x, y });
+        const newCoordinates = { x, y };
 
+        handleAddPoint(newCoordinates);
     }
 
     return (
-        <div className="App">
-            <div>
+        <div className="main">
+            <div className="column">
                 {coordinates.map((row, ix) => {
                     return (
                         <div key={ix}>
@@ -64,32 +83,26 @@ export default function App() {
                     );
                 })}
 
-                <button onClick={() => handleAddPoint}>Add point</button>
+                <button onClick={() => handleAddPoint()}>Add point</button>
             </div>
-            <div
-                onClick={handleGlobalClick}
-                style={{
-                    position: "relative",
-                    width: "100px",
-                    height: "100px",
-                    border: "1px solid black"
-                }}
-            >
-                {coordinates.map((row, ix) => {
-                    return (
-                        <div
-                            key={ix}
-                            style={{
-                                left: row.x,
-                                top: row.y,
-                                position: "absolute",
-                                width: "2px",
-                                height: "2px",
-                                backgroundColor: "red"
-                            }}
-                        ></div>
-                    );
-                })}
+            <div className="column">
+                <div
+                    onClick={handleGlobalClick}
+                    className="plot"
+                >
+                    {coordinates.map((row, ix) => {
+                        return (
+                            <div
+                                className="point"
+                                key={ix}
+                                style={{
+                                    left: row.x,
+                                    bottom: row.y,
+                                }}
+                            />
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
