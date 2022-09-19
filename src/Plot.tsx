@@ -34,7 +34,7 @@ export const Plot = ({
         return () => window.removeEventListener('resize', updater);
     }, [ref?.current]);
 
-    const onplotAreacClick = (event: MouseEvent) => {
+    const onPlotAreaClick = (event: MouseEvent) => {
         const node = event.target as HTMLElement
 
         const bounds = node.getBoundingClientRect();
@@ -46,7 +46,7 @@ export const Plot = ({
     }
 
     return (
-        <div onClick={onplotAreacClick} className="plot" ref={ref}>
+        <div onClick={onPlotAreaClick} className="plot" ref={ref}>
             {convert(coordinates,aspect).map((tuple, ix) => {
                 return (
                     <div
