@@ -1,65 +1,74 @@
-import { useState, MouseEvent } from "react";
+import { useState, MouseEvent, useRef, useEffect, MutableRefObject } from "react";
 import './App.css'
+import { Plot } from "./Plot";
 
-type Coordinates = {
+export type Coordinates = {
     x?: number;
     y?: number;
 };
 
-// const toView = (coordinates: Coordinates, aspect: number): Coordinates=>{
-//     return {
-//         x: (coordinates.x || 0) * aspect,
-//         y: (coordinates.y || 0) * aspect
-//     }
-// }
-
-// const toCoordinates = (coordinates: Coordinates, aspect: number): Coordinates=>{
-//     return {
-//         x: (coordinates.x || 0) / aspect,
-//         y: (coordinates.y || 0) / aspect
-//     }
-// }
+const plotSize = 100;
 
 
-// const aspect = 100;
+const convert = (coordinates: Coordinates[], aspect: number): Coordinates[] => coordinates.map((tuple: Coordinates) => ({ x: (tuple.x && tuple.x * aspect), y: (tuple.y && tuple.y * aspect) }))
 
 export default function App() {
     const [coordinates, setCoordinates] = useState<Coordinates[]>([]);
+    const [aspect, setAspect] = useState<number>(1);
+    const ref = useRef() as MutableRefObject<HTMLDivElement>;
+
+    const updateSize = (node: HTMLElement) => () => {
+        const aspect = node.getBoundingClientRect()?.width / plotSize;
+
+        setAspect(aspect);
+    }
+
+    useEffect(() => {
+        if (!ref?.current) {
+            return;
+        }
+
+        const node = ref.current as HTMLElement;
+        const updater = updateSize(node);
+        window.addEventListener('resize', updater);
+        updater();
+        return () => window.removeEventListener('resize', updater);
+    }, [ref?.current]);
 
     const handleRemove = (ix: number) => () => {
         coordinates.splice(ix, 1);
         setCoordinates([...coordinates]);
     };
 
-    const handleAddPoint = (newCoordinates: Coordinates = {}) => {
-        setCoordinates([...coordinates, newCoordinates]);
+    const handleAddPoint = () => {
+        setCoordinates([...coordinates, {}]);
     };
 
     const handleCoordinateUpdate = (ix: number, entry: Coordinates) => {
         const newcoordinates = [...coordinates];
         newcoordinates[ix] = entry;
-        console.log(newcoordinates);
         setCoordinates(newcoordinates);
     };
 
-    const handleGlobalClick = (event: MouseEvent) => {
+    const handlePlotClick = (event: MouseEvent) => {
         const node = event.target as HTMLElement
 
         const bounds = node.getBoundingClientRect();
         const x = event.clientX - bounds.left;
-        const y =  bounds.bottom - event.clientY;
+        const y = bounds.bottom - event.clientY;
 
-        const newCoordinates = { x, y };
+        const newCoordinates = { x: x / aspect, y: y / aspect };
 
-        handleAddPoint(newCoordinates);
+        setCoordinates([...coordinates, newCoordinates]);
     }
 
     return (
         <div className="main">
             <div className="column">
                 {coordinates.map((row, ix) => {
+                    const key= JSON.stringify(row);
                     return (
-                        <div key={ix}>
+                        <div key={key}>
                             <input
                                 value={row.x || ''}
                                 onChange={(event) => {
@@ -83,26 +92,10 @@ export default function App() {
                     );
                 })}
 
-                <button onClick={() => handleAddPoint()}>Add point</button>
+                <button onClick={handleAddPoint}>Add point</button>
             </div>
-            <div className="column">
-                <div
-                    onClick={handleGlobalClick}
-                    className="plot"
-                >
-                    {coordinates.map((row, ix) => {
-                        return (
-                            <div
-                                className="point"
-                                key={ix}
-                                style={{
-                                    left: row.x,
-                                    bottom: row.y,
-                                }}
-                            />
-                        );
-                    })}
-                </div>
+            <div className="column" ref={ref}>
+                <Plot coordinates={convert(coordinates, aspect)} onClick={handlePlotClick} />
             </div>
         </div>
     );

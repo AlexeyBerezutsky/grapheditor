@@ -8,15 +8,15 @@
 
 .plot {
     position: relative;
-    width: 100px;
+    width: 100%;
     aspect-ratio: 1;
     border: 1px solid black;
 }
 
 .point {
     position: absolute;
-    width: 2px;
-    height: 2px;
+    width: 10px;
+    height: 10px;
     background-color: red;
-    border-radius: 2px;
+    border-radius: 5px;
 }
