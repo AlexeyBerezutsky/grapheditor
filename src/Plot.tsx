@@ -1,5 +1,8 @@
 import { Coordinates } from './App';
-import { MouseEvent } from 'react';
+import { MouseEvent, MutableRefObject, useEffect, useRef, useState } from 'react';
+import { convert } from './tools';
+
+export const plotSize = 100;
 
 type Props = {
     onClick: (coordinates: Coordinates) => void,
@@ -10,6 +13,26 @@ export const Plot = ({
     onClick,
     coordinates
 }: Props) => {
+    const [aspect, setAspect] = useState<number>(1);
+    const ref = useRef() as MutableRefObject<HTMLDivElement>;
+
+    const updateSize = (node: HTMLElement) => () => {
+        const aspect = node.getBoundingClientRect()?.width / plotSize;
+
+        setAspect(aspect);
+    }
+
+    useEffect(() => {
+        if (!ref?.current) {
+            return;
+        }
+
+        const node = ref.current as HTMLElement;
+        const updater = updateSize(node);
+        window.addEventListener('resize', updater);
+        updater();
+        return () => window.removeEventListener('resize', updater);
+    }, [ref?.current]);
 
     const onplotAreacClick = (event: MouseEvent) => {
         const node = event.target as HTMLElement
@@ -17,13 +40,14 @@ export const Plot = ({
         const bounds = node.getBoundingClientRect();
         const x = event.clientX - bounds.left;
         const y = bounds.bottom - event.clientY;
+        const newCoordinates = { x: x / aspect, y: y / aspect };
 
-        onClick({ x, y });
+        onClick(newCoordinates);
     }
 
     return (
-        <div onClick={onplotAreacClick} className="plot">
-            {coordinates.map((tuple, ix) => {
+        <div onClick={onplotAreacClick} className="plot" ref={ref}>
+            {convert(coordinates,aspect).map((tuple, ix) => {
                 return (
                     <div
                         onClick={(event) => { event.stopPropagation() }}
